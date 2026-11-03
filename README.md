@@ -67,7 +67,7 @@ Replace the example password with your own MySQL password. Never upload database
 ### 6. Run the application
 
 ```powershell
-python app.py
+.\run_project.ps1
 ```
 
 ### 7. Open in browser
