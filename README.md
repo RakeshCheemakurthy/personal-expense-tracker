@@ -30,6 +30,7 @@ personal-expense-tracker/
 ├── .gitignore
 ├── static/
 └── templates/
+└── screenshots/
 ```
 
 ## Setup on Windows
