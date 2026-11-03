@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="intro">
+    <div>
+        <p class="eyebrow">YOUR MONEY, ORGANIZED</p>
+        <h1>Personal Expense Tracker</h1>
+        <p class="muted">
+            Track your income, expenses, and monthly balance.
+        </p>
+    </div>
+
+    <form method="get" action="/" class="month">
+        <label>
+            Choose month
+            <input type="month" name="month" value="{{ month }}">
+        </label>
+        <button class="button secondary" type="submit">View</button>
+    </form>
+</section>
+
+<section class="summary">
+    <article>
+        <span>Total income</span>
+        <strong class="green">
+            ₹{{ "%.2f"|format(totals.income) }}
+        </strong>
+    </article>
+
+    <article>
+        <span>Total expenses</span>
+        <strong class="red">
+            ₹{{ "%.2f"|format(totals.expenses) }}
+        </strong>
+    </article>
+
+    <article>
+        <span>Balance</span>
+        <strong>
+            ₹{{ "%.2f"|format(totals.balance) }}
+        </strong>
+    </article>
+</section>
+
+<!-- Monthly charts -->
+<section class="panel">
+    <h2>Monthly Expense Analysis</h2>
+    <p class="muted">
+        Visualize spending by category and compare income with expenses.
+    </p>
+
+    <div class="chart-grid">
+        <div class="chart-container">
+            <h3>Expenses by Category</h3>
+
+            <img
+                src="{{ url_for('expense_chart', month=month) }}"
+                alt="Doughnut chart showing expenses by category"
+                class="chart-image"
+            >
+        </div>
+
+        <div class="chart-container">
+            <h3>Income vs Expenses</h3>
+
+            <img
+                src="{{ url_for('income_expense_chart', month=month) }}"
+                alt="Bar chart comparing income and expenses"
+                class="chart-image"
+            >
+        </div>
+    </div>
+</section>
+
+<!-- Add transaction -->
+<section class="panel">
+    <h2>Add transaction</h2>
+
+    <form action="/add" method="post" class="grid">
+        <label>
+            Title
+            <input
+                name="title"
+                required
+                maxlength="120"
+                placeholder="Monthly salary"
+            >
+        </label>
+
+        <label>
+            Type
+            <select name="transaction_type" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+        </label>
+
+        <label>
+            Category
+            <select name="category" required>
+                {% for c in categories %}
+                    <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Amount (₹)
+            <input
+                name="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+            >
+        </label>
+
+        <label>
+            Date
+            <input
+                name="transaction_date"
+                type="date"
+                value="{{ month }}-01"
+                required
+            >
+        </label>
+
+        <label class="wide">
+            Note (optional)
+            <input name="note" maxlength="500">
+        </label>
+
+        <div class="wide">
+            <button class="button" type="submit">
+                Add transaction
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Search and filters -->
+<section class="panel">
+    <h2>Search and filter transactions</h2>
+
+    <form method="get" action="/" class="grid">
+        <label>
+            Month
+            <input type="month" name="month" value="{{ month }}">
+        </label>
+
+        <label>
+            Search title or note
+            <input
+                type="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search transactions"
+            >
+        </label>
+
+        <label>
+            Category
+            <select name="category">
+                <option value="">All categories</option>
+                {% for c in categories %}
+                    <option
+                        value="{{ c }}"
+                        {% if category == c %}selected{% endif %}
+                    >
+                        {{ c }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Transaction type
+            <select name="transaction_type">
+                <option value="">All types</option>
+                <option
+                    value="income"
+                    {% if transaction_type == 'income' %}selected{% endif %}
+                >
+                    Income
+                </option>
+                <option
+                    value="expense"
+                    {% if transaction_type == 'expense' %}selected{% endif %}
+                >
+                    Expense
+                </option>
+            </select>
+        </label>
+
+        <label>
+            From date
+            <input type="date" name="start_date" value="{{ start_date }}">
+        </label>
+
+        <label>
+            To date
+            <input type="date" name="end_date" value="{{ end_date }}">
+        </label>
+
+        <div class="wide">
+            <button class="button" type="submit">
+                Apply filters
+            </button>
+
+            <a href="/" class="button secondary">
+                Clear filters
+            </a>
+        </div>
+    </form>
+</section>
+
+<!-- Transactions table -->
+<section class="panel">
+    <div class="heading">
+        <h2>Transactions</h2>
+        <span class="muted">
+            {{ transactions|length }} record(s) found
+        </span>
+    </div>
+
+    {% if transactions %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>
+                            {{ t.transaction_date.strftime('%d %b %Y') }}
+                        </td>
+
+                        <td>
+                            <b>{{ t.title }}</b>
+                            {% if t.note %}
+                                <small>{{ t.note }}</small>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.transaction_type|title }}</td>
+
+                        <td class="{{ 'green' if t.transaction_type == 'income' else 'red' }}">
+                            ₹{{ "%.2f"|format(t.amount) }}
+                        </td>
+
+                        <td>
+                            <a href="/edit/{{ t.id }}">Edit</a>
+
+                            <form
+                                class="inline"
+                                action="/delete/{{ t.id }}"
+                                method="post"
+                                onsubmit="return confirm('Delete this transaction?')"
+                            >
+                                <button class="link red" type="submit">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">
+            No transactions match your filters.
+            Try changing the filters or clearing them.
+        </p>
+    {% endif %}
+</section>
+
+{% endblock %}
