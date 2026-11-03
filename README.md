@@ -98,3 +98,10 @@ For educational and learning purposes.
 
 ### 5. Transactions
 ![Transactions](screenshots/Transactions.png)
+
+
+## Developed By
+
+Cheemakurthy Rakesh
+
+MCA Graduate | Python Developer
