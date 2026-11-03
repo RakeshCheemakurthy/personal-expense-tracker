@@ -78,3 +78,22 @@ MySQL is used to store income and expense transactions.
 
 ## License
 For educational and learning purposes.
+
+
+
+## Project Screenshots
+
+### 1. Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### 2. Add Transaction
+![Add Transaction](screenshots/add-transaction.png)
+
+### 3. Monthly Expense Analysis
+![Monthly Expense Analysis](screenshots/monthly-expense-analysis.png)
+
+### 4. Search and Filter Transactions
+![Search and Filter Transactions](screenshots/search-filter-transactions.png)
+
+### 5. Transactions
+![Transactions](screenshots/Transactions.png)
